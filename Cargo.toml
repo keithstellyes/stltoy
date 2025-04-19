@@ -1,0 +1,16 @@
+[package]
+name = "stltoy"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bytemuck = "1.22.0"
+env_logger = "0.11.8"
+glam = "0.30.1"
+pollster = "0.4.0"
+wgpu = "24.0.3"
+winit = "0.29.1"
+log = "0.4"
+fmt = "0.1.0"
+fs = "0.0.5"
+
