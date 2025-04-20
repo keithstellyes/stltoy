@@ -9,7 +9,9 @@ use std::fs;
 use std::error::Error;
 use std::str;
 
-pub struct StlMetaData {
+pub enum StlMetaData {
+    Ascii(String),
+    Binary(Box<[u8; 80]>)
 }
 
 pub struct StlVert {
@@ -33,11 +35,22 @@ impl fmt::Display for StlObject {
 }
 
 fn parseAsciiStl(data: &str) -> Result<StlObject, Box<dyn Error>> {
-    todo!("ascii stl")
+    // per Wikipedia, space is required after "solid" even if name is not present
+    let name = String::from(&data["solid ".len()..data.find('\n').unwrap()]);
+    todo!("ASCII (name: {})", &name);
+    let md: StlMetaData = StlMetaData::Ascii(name);
 }
 
 fn parseBinStl(data: Vec<u8>) -> Result<StlObject, Box<dyn Error>> {
-    todo!("binary stl")
+    if data.len() < MIN_BIN_LEN {
+        return Err("Invalid STL".into())
+    }
+
+    let dataSlice: [u8; 80] = data[..80].try_into().unwrap();
+    let mdData: Box<[u8; 80]> = Box::from(dataSlice);
+    let tricount = u32::from_le_bytes(data[80..84].try_into().unwrap());
+
+    todo!("bin # tris: {}", tricount);
 }
 
 const fn min(a: usize, b: usize) -> usize {
@@ -50,7 +63,7 @@ const MIN_LEN: usize = min(MIN_ASCII_LEN, MIN_BIN_LEN);
 
 // have to use "dyn" because it's a trait object
 fn parseStlBytes(data: Vec<u8>) -> Result<StlObject, Box<dyn Error>> {
-    let md: StlMetaData = StlMetaData{};
+    let md: StlMetaData = StlMetaData::Ascii(String::from("name"));
     let tris: Box<[StlTriangle]> = Box::from([]);
 
     if data.len() < MIN_LEN {
